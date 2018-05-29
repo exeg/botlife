@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const itemSchema = new mongoose.Schema({
+  type: { 
+  	type: String,
+  	default: "button"
+  },	
   level: { type: Number },
   text: { type: String },
   master: {
