@@ -1,6 +1,9 @@
 //facebookController
 const mongoose = require('mongoose');
 const BootBot = require('bootbot');
+const Fuser = require('../models/Fclient');
+const Item = require('../models/Item');
+
 
 
 const bot = new BootBot({
@@ -12,16 +15,19 @@ const bot = new BootBot({
 bot.setGreetingText(`Здравствуйте! Приветствуем Вас в центре поддержки пользователей Ivi.ru !
 Задайте вопрос оператору или воспользуйтесь меню самообслуживания!`);
 
-bot.setGetStartedButton((payload, chat) => {
-  chat.getUserProfile().then((user) => {
+bot.setGetStartedButton( async (payload, chat) => {
+  chat.getUserProfile().then( async (user) => {
+    let gitems = await Item.find({ level: 1 });
     chat.say({ 
       text: `Здравствуйте ${user.first_name}, Задайте вопрос оператору или воспользуйтесь меню самообслуживания!.`, 
-      quickReplies: [
-      { content_type:"text", title: 'Фильмы на Ivi.ru', payload: 'HELP_SETTINGS' },
-      { content_type:"text", title: 'Финансовые вопросы', payload: 'HELP_FAQ' },
-      { content_type:"text", title: 'Технические вопросы', payload: 'HELP_HUMAN' }
+      buttons: [
+      { type: 'postback', title: gitems[0].text, payload: String(gitems[0]._id) },
+      { type: 'postback', title: gitems[1].text, payload: String(gitems[1]._id) },
+      { type: 'postback', title: gitems[2].text, payload: String(gitems[2]._id) }
     ]
     });
+    const newfUser = new Fuser({ fid: user.id, first_name: user.first_name, last_name: user.last_name, timezone: user.timezone });
+    await newfUser.save();
   });
 });
 
@@ -31,11 +37,36 @@ bot.on('message', (payload, chat) => {
   chat.say(`Echo: ${text}`);
 });
 
-bot.on('postback: BOOTBOT_GET_STARTED', (payload, chat) => {
-  console.log('The Help Me button was clicked!');
+bot.on('postback', async (payload, chat) => {
+  const userId = payload.sender.id;
+  // chat.userId = userId;
+  // console.log(payload, 'The Help Me button was clicked!');
+  let answers = await Item.find({ master: payload.postback.payload });
+  if (answers[0].type === 'button') {
+    let message = {};
+    message.text = "";
+    message.buttons = [];    
+    for (let i in answers) {
+      message.text = answers[i].text
+      message.buttons = [];
+      message.buttons.push( { type: 'postback', title: "Ok", payload: String(answers[i]._id) } );
+      bot.say(userId, message);
+    };
+  }
+  if (answers[0].type === 'text') {
+    bot.say(userId, answers[0].text);
+
+  }
+
+   // console.log(answers)
+
 });
 
 
+exports.testFacebook = async () => {
+  let fitems = await Item.find({ level: 1 });
+  console.log(fitems);
+}
 
 exports.verifyFacebook = async (req,res) => {
   if (req.query['hub.verify_token'] === 'persistent battle'){
@@ -49,11 +80,11 @@ exports.processFacebook = async (req, res) => {
     if (data.object !== 'page') {
       return;
     }
-    console.log(data, "Yee");
+    // console.log(data, "Yee");
     let ress = data.entry;
     for (let i in ress) {
-      console.log(ress[i]);
-      console.log(ress[i].messaging);
+      // console.log(ress[i]);
+      // console.log(ress[i].messaging);
     }
   bot.handleFacebookData(data);
   // Must send back a 200 within 20 seconds or the request will time out.
