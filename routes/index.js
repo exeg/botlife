@@ -2,8 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Item = require('../models/Item');
 const facebookController = require('../controllers/facebookController');
-// const userController = require('../controllers/userController');
+const userController = require('../controllers/userController');
 const { catchErrors } = require('../handlers/errorHandlers');
+
+
+router.get('/regtest', userController.regDefault)
+
+router.post('/login', userController.login);
 
 router.get('/', function(req, res) {
   res.send("hey there boi")
