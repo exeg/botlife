@@ -5,6 +5,24 @@ const Item = require('../models/Item');
 const User = require('../models/User');
 
 
+exports.getItems = async (req, res) => {
+  let items = await Item.find();
+  let result = {};
+  result.level_1 = [];
+  result.level_2 = [];
+  result.level_3 = [];
+  for (itm of items) {
+    if (itm.level === 1) result.level_1.push(itm);
+    if (itm.level === 2) result.level_2.push(itm); 	
+    if (itm.level === 3) result.level_3.push(itm); 	
+ 	
+  } 
+
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(result, null, 3));
+}
+
+
 exports.regDefault = async (req, res) => {
   const user = new User({email: 'test@mail.com', name: 'test'});
   await user.setPassword('test');

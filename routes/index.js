@@ -5,8 +5,9 @@ const facebookController = require('../controllers/facebookController');
 const userController = require('../controllers/userController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
+router.get('/items', userController.getItems);
 
-router.get('/regtest', userController.regDefault)
+router.get('/regtest', userController.regDefault);
 
 router.post('/login', userController.login);
 
