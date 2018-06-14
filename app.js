@@ -53,6 +53,17 @@ app.use('/', routes);
 
 app.use(errorHandlers.notFound);
 
+// error handler
+app.use(function(err, req, res) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.send('Something broke!');
+});
+
 
 app.listen(app.get('port'), function(){
   console.log('Started on port', app.get('port'))

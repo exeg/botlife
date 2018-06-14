@@ -31,17 +31,45 @@ exports.regDefault = async (req, res) => {
   // const { user } = await DefaultUser.authenticate()('user', 'password');
 }
 
-exports.login = passport.authenticate('local', {
-  failureRedirect: '/login',
-  failureFlash: 'Failed Login!',
-  successRedirect: '/',
-  successFlash: 'You are now logged in!'
-});
+// exports.login = passport.authenticate('local', {
+//   // failureRedirect: '/login',
+//   // failureFlash: 'Failed Login!',
+//   // successRedirect: '/',
+//   // successFlash: 'You are now logged in!'
+// });
+
+exports.login = function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) {
+      return res.status(401).json({
+        err: info
+      });
+    }
+    if (!user) {
+      return res.status(401).json({
+        err: info
+      });
+    }
+    req.logIn(user, function(err) {
+      if (err) {
+        return res.status(500).json({
+          err: 'Could not log in user'
+        });
+      }        
+      res.status(200).json({
+        status: 'Login successful!',
+        success: true
+      });
+
+    });
+  })(req, res, next);
+}
 
 exports.logout = (req, res) => {
   req.logout();
-  // req.flash('success', 'You are now logged out! 👋');
-  res.redirect('/');
+  res.status(200).json({
+    status: 'Bye!'
+  });
 };
 
 exports.isLoggedIn = (req, res, next) => {
