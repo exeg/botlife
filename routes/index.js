@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const Item = require('../models/Item');
+// const Item = require('../models/Item');
 const facebookController = require('../controllers/facebookController');
 const userController = require('../controllers/userController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
 router.get('/items', userController.getItems);
+
+router.put('/item/:id', userController.editItem);
 
 router.get('/regtest', userController.regDefault);
 

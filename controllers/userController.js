@@ -5,6 +5,23 @@ const Item = require('../models/Item');
 const User = require('../models/User');
 
 
+
+exports.editItem = async (req, res) => {
+   const item = await Item.findOneAndUpdate({ _id: req.params.id }, req.body, {
+    new: true
+   }).exec();
+   if (item) {
+     res.status(200).json({
+     item: item,
+     status: 'Update successful!',
+     });
+   } else {
+     throw err;
+   }
+
+}
+
+
 exports.getItems = async (req, res) => {
   let items = await Item.find();
   let result = {};

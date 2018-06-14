@@ -12,6 +12,11 @@ const User = require('./models/User');
 const errorHandlers = require('./handlers/errorHandlers');
 require('./handlers/passport');
 
+process.on("unhandledRejection", function handleWarning( reason, promise ) {
+  console.log("[PROCESS] Unhandled Promise Rejection");
+  console.log( reason );
+});
+
 
 mongoose.connect('mongodb://localhost:27017/testbot');
 mongoose.Promise = global.Promise; // Tell Mongoose to use ES6 promises
