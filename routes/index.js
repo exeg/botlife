@@ -3,6 +3,7 @@ const router = express.Router();
 // const Item = require('../models/Item');
 const facebookController = require('../controllers/facebookController');
 const userController = require('../controllers/userController');
+const telegramController = require('../controllers/telegramController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
 router.get('/items', userController.getItems);
