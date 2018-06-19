@@ -5,13 +5,15 @@ const facebookController = require('../controllers/facebookController');
 const userController = require('../controllers/userController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
-router.get('/items', userController.getItems);
+router.get('/items', userController.isLoggedIn, userController.getItems);
 
-router.put('/item/:id', userController.editItem);
+router.put('/item/:id', userController.isLoggedIn, userController.editItem);
 
 router.get('/regtest', userController.regDefault);
 
 router.post('/login', userController.login);
+
+router.get('/logout', userController.logout);
 
 router.get('/', function(req, res) {
   res.send("hey there boi")

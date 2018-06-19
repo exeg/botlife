@@ -9,7 +9,7 @@ const Item = require('../models/Item');
 
 
 const bot = new BootBot({
-  accessToken:'EAADfSiFZCkfMBAAQC5Rgu8tMr00k1BmQF1WZAgzFVZBO2y2i2nUSAcveimFHaGsGXUk6uMXMDYMJUVeYZC9aX0INZCMBEZCTaCXdwTFf2riPj5asCYx8e8oL1Hcaqd90pP9JkHMSZCGM7UsTME665weCZB5koZAUbOUkgJk8ZAyXSGzQZDZD',
+  accessToken:'EAADfSiFZCkfMBAIf566aVUQuNMbQa83cJgSF3niurOmu7va3g2Y7Itgi3ZBRsMEzO5FJ3JB54VCAaSYYwjnSS45B638LOMioTlGICFMuZC72WmreoJotJc02QUQcSRsj8tbzvwEshBQL83YDH17AOhG1H4ZBx8KZC2ssk3gxMGQZDZD',
   verifyToken: 'persistent battle',
   appSecret: '77bebd9f917100949057155d8e95a24d'
 });
