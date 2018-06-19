@@ -16,14 +16,14 @@ const bot = new Telegraf(TOKEN)
 bot.start( async ({ reply, from, message }) => {
   createUser(message)
   reply(`Здравствуйте, ${from.first_name} ${from.last_name}! Приветствуем Вас в центре поддержки пользователей Ivi.ru!\n
-Задайте вопрос оператору или воспользуйтесь меню самообслуживания!`, await keyboard());
+Задайте вопрос оператору или воспользуйтесь меню самообслуживания!`, await keyboard(1));
 });
 
 const inlineKeyboardResponse = ['yes', 'no', 'start'];
 inlineKeyboardResponse.map((msg) => {
   bot.action(msg, async ({ reply, editMessageReplyMarkup }) => {
     editMessageReplyMarkup();
-    reply('Спасибо за отзыв!', await keyboard());
+    reply('Спасибо за отзыв!', await keyboard(1));
   });
 });
 
