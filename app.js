@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const routes = require('./routes/index');
-const User = require('./models/User');
+// const User = require('./models/User');
 const errorHandlers = require('./handlers/errorHandlers');
 require('./handlers/passport');
 
@@ -24,19 +24,13 @@ mongoose.connection.on('error', (err) => {
   console.error(`🙅 🚫 🙅 🚫 🙅 🚫 🙅 🚫 → ${err.message}`);
 });
 
-// app.use(basicAuth({
-//     users: { 'test': 'test' }
-// }))
+
 const MongoStore = require('connect-mongo')(session);    
 
 const app = express();
 
 app.set('port', (process.env.PORT || 3000));
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-
-// populates req.cookies with any cookies that came along with the request
-// app.use(cookieParser());
 
 // Sessions allow us to store data on visitors from request to request
 // This keeps users logged in and allows us to send flash messages

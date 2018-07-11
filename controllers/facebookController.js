@@ -24,7 +24,7 @@ async function mainMenu () {
   return buttons;
 }
 
-bot.setGreetingText(`Здравствуйте! Приветствуем Вас в центре поддержки пользователей Ivi.ru !
+bot.setGreetingText(`Здравствуйте! Приветствуем Вас в центре поддержки пользователей ivi.ru !
 Задайте вопрос оператору или воспользуйтесь меню самообслуживания!`);
 
 bot.setGetStartedButton( async (payload, chat) => {
