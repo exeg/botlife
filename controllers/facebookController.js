@@ -102,6 +102,8 @@ bot.on('postback', async (payload, chat) => {
 
 
 exports.testFacebook = async () => {
+  const newItem = { type:"button", master: null, level: 1,"text":"Связаться с оператором" };
+  await (new Item(newItem)).save();  
   let fitems = await Item.find({ level: 1 });
   console.log(fitems);
 }
