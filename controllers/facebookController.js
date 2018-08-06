@@ -34,6 +34,10 @@ bot.setGetStartedButton( async (payload, chat) => {
       text: `Здравствуйте ${user.first_name}, Задайте вопрос оператору или воспользуйтесь меню самообслуживания!.`, 
       buttons: buttons
     });
+    chat.say({
+          text: `Задайте ваш вопрос после нажатия этой кнопки.`, 
+          buttons: [ { type: 'postback', title: 'Связь с оператором', payload: 'BLINGER_HELP' } ]
+    })
     const newfUser = new Fuser({ fid: user.id, first_name: user.first_name, last_name: user.last_name, timezone: user.timezone });
     await newfUser.save();
   });
@@ -50,15 +54,20 @@ bot.on('message', async (payload, chat) => {
         text: `Задайте вопрос оператору или воспользуйтесь меню самообслуживания!.`,
         buttons: buttons 
       })
-    } 
+    }
+    console.log(payload.message.quick_reply.payload); 
   }
-  console.log(payload.message.quick_reply.payload);
+
   const text = payload.message.text;
   chat.say(`Echo: ${text}`);
 });
 
 bot.on('postback', async (payload, chat) => {
   const userId = payload.sender.id;
+  if (payload.postback.payload === 'BLINGER_HELP') {
+    bot.say(userId, "Добрый день, Какой у вас вопрос?");
+    return;
+  }
   let answers = await Item.find({ master: payload.postback.payload });
   if (answers[0].type === 'button') {
     let message = {};
@@ -101,12 +110,12 @@ bot.on('postback', async (payload, chat) => {
 });
 
 
-exports.testFacebook = async () => {
-  const newItem = { type:"button", master: null, level: 1,"text":"Связаться с оператором" };
-  await (new Item(newItem)).save();  
-  let fitems = await Item.find({ level: 1 });
-  console.log(fitems);
-}
+// exports.testFacebook = async (req, res) => {
+//   const newItem = { type:"button", master: null, level: 1,"text":"Связаться с оператором" };
+//   await (new Item(newItem)).save();  
+//   let fitems = await Item.find({ level: 1 });
+//   console.log(fitems);
+// }
 
 exports.verifyFacebook = async (req,res) => {
   if (req.query['hub.verify_token'] === 'persistent battle'){
@@ -120,12 +129,12 @@ exports.processFacebook = async (req, res) => {
     if (data.object !== 'page') {
       return;
     }
-    // console.log(data, "Yee");
-    // let ress = data.entry;
-    // for (let i in ress) {
-    //   // console.log(ress[i]);
-    //   // console.log(ress[i].messaging);
-    // }
+    console.log(data, "Yee");
+    let ress = data.entry;
+    for (let i in ress) {
+      console.log(ress[i]);
+      console.log(ress[i].messaging);
+    }
   bot.handleFacebookData(data);
   // Must send back a 200 within 20 seconds or the request will time out.
   res.sendStatus(200);

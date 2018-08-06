@@ -11,7 +11,9 @@ const Item = require('../models/Item');
 const TOKEN = configFile.TELEGRAM_TOKEN;
 const bot = new Telegraf(TOKEN)
 
-// bot.use(Telegraf.log());
+bot.catch((err) => {
+  console.log('Ooops', err)
+})
 
 bot.start( async ({ reply, from, message }) => {
   createUser(message)
@@ -28,8 +30,18 @@ inlineKeyboardResponse.map((msg) => {
 });
 
 bot.on('text', async ({ reply, message }) => {
-  const data = await getMenuByParentText(message.text);
-  if (data && data[0].type === 'text') {
+  try {
+    const data = await getMenuByParentText(message.text);
+  } catch (err) {
+    console.log(err);
+    console.log(message);
+    return;
+  }
+  if (!data || data.length === 0) {
+   console.log(message);
+  } else {
+    console.log(data, "DATA");
+    if (data && data[0].type === 'text') {
     reply(data[0].text);
     reply('Была ли статья полезна?', defaultKeyboard());
   } else if(data && data[0].type === 'button') {
@@ -37,6 +49,7 @@ bot.on('text', async ({ reply, message }) => {
   } else {
     reply('Ничего по вашему запросу не найдено :(', await keyboard(1));
   }
+}
 });
 
 async function createUser(data) {
