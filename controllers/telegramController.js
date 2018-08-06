@@ -11,9 +11,15 @@ const Item = require('../models/Item');
 const TOKEN = configFile.TELEGRAM_TOKEN;
 const bot = new Telegraf(TOKEN)
 
+
 bot.catch((err) => {
   console.log('Ooops', err)
 })
+
+const operatorModeActive = []
+const connectToOperator = 'Связаться с оператором'
+
+// bot.use(Telegraf.log());
 
 bot.start( async ({ reply, from, message }) => {
   createUser(message)
@@ -30,27 +36,28 @@ inlineKeyboardResponse.map((msg) => {
 });
 
 bot.on('text', async ({ reply, message }) => {
-  try {
-    const data = await getMenuByParentText(message.text);
-  } catch (err) {
-    console.log(err);
-    console.log(message);
-    return;
+  if (!isUserInOperatorMode(message.from.id) && message.text === connectToOperator) {
+    const user = await Fuser.findOne({ fid: message.from.id })
+    operatorModeActive.push(user)
+    reply('Сейчас вам ответит оператор, пожалуйста подождите!')
   }
-  if (!data || data.length === 0) {
-   console.log(message);
-  } else {
-    console.log(data, "DATA");
+  if (!isUserInOperatorMode(message.from.id)) {
+    const data = await getMenuByParentText(message.text);
     if (data && data[0].type === 'text') {
-    reply(data[0].text);
-    reply('Была ли статья полезна?', defaultKeyboard());
-  } else if(data && data[0].type === 'button') {
-    reply('Ищем ответ...', generateKeyboard(data));
-  } else {
-    reply('Ничего по вашему запросу не найдено :(', await keyboard(1));
+      reply(data[0].text);
+      reply('Была ли статья полезна?', defaultKeyboard());
+    } else if(data && data[0].type === 'button') {
+      reply('Ищем ответ...', generateKeyboard(data));
+    } else {
+      reply('Ничего по вашему запросу не найдено :(', await keyboard(1));
+    }
   }
 }
 });
+
+function isUserInOperatorMode(userId) {
+  return operatorModeActive.find(u => Number(u.fid) === userId)
+}
 
 async function createUser(data) {
   const user = new Fuser({ 
@@ -63,6 +70,7 @@ async function createUser(data) {
 
 async function keyboard(level) {
   const data = await getMenuByLevel(level);
+  data.push(connectToOperator)
   return generateKeyboard(data);
 }
 
