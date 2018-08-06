@@ -1,11 +1,14 @@
 //facebookController
 const mongoose = require('mongoose');
 const BootBot = require('bootbot');
+const axios = require('axios');
 const util = require('util');
 const setTimeoutPromise = util.promisify(setTimeout);
 const Fuser = require('../models/Fclient');
 const Item = require('../models/Item');
+const operatorMessageTemplate = require('../templates/facebookTemplate').facebookTemplate();
 
+const operatorModeActive = [];
 
 
 const bot = new BootBot({
@@ -53,61 +56,79 @@ bot.on('message', async (payload, chat) => {
       chat.say({
         text: `Задайте вопрос оператору или воспользуйтесь меню самообслуживания!.`,
         buttons: buttons 
+      });
+      chat.say({
+        text: `Задайте ваш вопрос после нажатия этой кнопки.`, 
+        buttons: [ { type: 'postback', title: 'Связь с оператором', payload: 'BLINGER_HELP' } ]
       })
     }
-    console.log(payload.message.quick_reply.payload); 
+    // console.log(payload.message.quick_reply.payload); 
   }
-
-  const text = payload.message.text;
-  chat.say(`Echo: ${text}`);
+  const userId = payload.sender.id;
+  let operatorMode = isUserInOperatorMode(userId);
+  if (operatorMode) {
+    operatorMessageTemplate.entry[0].messaging[0].sender.id = userId;
+    operatorMessageTemplate.entry[0].messaging[0].message.text = payload.message.text;
+    axios.post('https://api.blinger.ru/facebook_webhook', operatorMessageTemplate)
+  }
+  // const text = payload.message.text;
+  // chat.say(`Echo: ${text}`);
 });
 
 bot.on('postback', async (payload, chat) => {
   const userId = payload.sender.id;
   if (payload.postback.payload === 'BLINGER_HELP') {
+    const user = await Fuser.findOne({ fid: userId });
+    operatorModeActive.push(user);
     bot.say(userId, "Добрый день, Какой у вас вопрос?");
     return;
   }
-  let answers = await Item.find({ master: payload.postback.payload });
-  if (answers[0].type === 'button') {
-    let message = {};
-    message.text = "";
-    message.buttons = [];
-    for (let i in answers) {
-      message.text = answers[i].text
-      message.buttons = [];
-      message.buttons.push( { type: 'postback', title: "Подробнее", payload: String(answers[i]._id) } );
-      bot.say(userId, message);
-    };
-  }
-  if (answers[0].type === 'text') {
-    bot.say(userId, answers[0].text);
-    setTimeoutPromise(40).then(() => {
+  // if (operatorMode === false) {
+    let answers = await Item.find({ master: payload.postback.payload });
+    if (answers[0].type === 'button') {
       let message = {};
-      message.text = "Была ли статья полезна?";
-      message.quickReplies = [ {
-        content_type: 'text',
-        title:'Да',
-        payload: String(answers[0]._id)
-        },
-        {
-        content_type: 'text',
-        title: "Нет",
-        payload: String(answers[0]._id) 
-        },
-        {
-        content_type: 'text',
-        title: "В Начало",
-        payload: String(answers[0]._id)   
-        }];
-      bot.say(userId, message);
-    });
+      message.text = "";
+      message.buttons = [];
+      for (let i in answers) {
+        message.text = answers[i].text
+        message.buttons = [];
+        message.buttons.push( { type: 'postback', title: "Подробнее", payload: String(answers[i]._id) } );
+        bot.say(userId, message);
+      };
+    }
+    if (answers[0].type === 'text') {
+      bot.say(userId, answers[0].text);
+      setTimeoutPromise(40).then(() => {
+        let message = {};
+        message.text = "Была ли статья полезна?";
+        message.quickReplies = [ {
+          content_type: 'text',
+          title:'Да',
+          payload: String(answers[0]._id)
+          },
+         {
+          content_type: 'text',
+          title: "Нет",
+          payload: String(answers[0]._id) 
+          },
+          {
+          content_type: 'text',
+          title: "В Начало",
+          payload: String(answers[0]._id)   
+          }];
+        bot.say(userId, message);
+      });
+    }
+  // }
 
-  }
 
    // console.log(answers)
 
 });
+
+function isUserInOperatorMode(userId) {
+  return operatorModeActive.find(u => u.fid === userId);
+}
 
 
 // exports.testFacebook = async (req, res) => {
@@ -129,11 +150,11 @@ exports.processFacebook = async (req, res) => {
     if (data.object !== 'page') {
       return;
     }
-    console.log(data, "Yee");
-    let ress = data.entry;
-    for (let i in ress) {
-      console.log(ress[i]);
-      console.log(ress[i].messaging);
+    // console.log(data, "Yee");
+    // let ress = data.entry;
+    // for (let i in ress) {
+    //   console.log(ress[i]);
+    //   console.log(ress[i].messaging);
     }
   bot.handleFacebookData(data);
   // Must send back a 200 within 20 seconds or the request will time out.

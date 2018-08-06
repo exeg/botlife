@@ -16,8 +16,8 @@ bot.catch((err) => {
   console.log('Ooops', err)
 })
 
-const operatorModeActive = []
-const connectToOperator = 'Связаться с оператором'
+const operatorModeActive = [];
+const connectToOperator = 'Связаться с оператором';
 
 // bot.use(Telegraf.log());
 
@@ -38,9 +38,10 @@ inlineKeyboardResponse.map((msg) => {
 
 bot.on('text', async ({ reply, message }) => {
   if (!isUserInOperatorMode(message.from.id) && message.text === connectToOperator) {
-    const user = await Fuser.findOne({ fid: message.from.id })
-    operatorModeActive.push(user)
-    reply('Сейчас вам ответит оператор, пожалуйста подождите!')
+    const user = await Fuser.findOne({ fid: message.from.id });
+    operatorModeActive.push(user);
+    reply('Добрый день, Какой у вас вопрос?');
+    return;
   }
   if (!isUserInOperatorMode(message.from.id)) {
     const data = await getMenuByParentText(message.text);
@@ -53,7 +54,7 @@ bot.on('text', async ({ reply, message }) => {
       reply('Ничего по вашему запросу не найдено :(', await keyboard(1));
     }
   }
-}
+
 });
 
 function isUserInOperatorMode(userId) {

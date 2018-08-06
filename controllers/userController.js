@@ -37,11 +37,8 @@ exports.getItems = async (req, res) => {
  	
   }
   for (itm of result.level_3) {
-    let level2 = result.level_2.filter((e) => String(e._id) === String(itm.master))[0] ;
-
+    let level2 = result.level_2.filter((e) => String(e._id) === String(itm.master))[0];
     let level1 = result.level_1.filter((e) => String(e._id) === String(level2.master))[0];
-
-    // console.log(level1.text + " ---> " + level2.text  + " ---> " + itm.text.slice(0,20) );
     let line = {
       level_1: level1,
       level_2: level2,
@@ -62,13 +59,6 @@ exports.regDefault = async (req, res) => {
   res.redirect('/');
   // const { user } = await DefaultUser.authenticate()('user', 'password');
 }
-
-// exports.login = passport.authenticate('local', {
-//   // failureRedirect: '/login',
-//   // failureFlash: 'Failed Login!',
-//   // successRedirect: '/',
-//   // successFlash: 'You are now logged in!'
-// });
 
 exports.login = function(req, res, next) {
   passport.authenticate('local', function(err, user, info) {
