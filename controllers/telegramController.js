@@ -21,6 +21,7 @@ const connectToOperator = 'Связаться с оператором'
 
 // bot.use(Telegraf.log());
 
+
 bot.start( async ({ reply, from, message }) => {
   createUser(message)
   reply(`Здравствуйте, ${from.first_name} ${from.last_name}! Приветствуем Вас в центре поддержки пользователей ivi.ru!\n
