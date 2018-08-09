@@ -55,13 +55,15 @@ bot.on('text', async ({ reply, message }) => {
 
 async function sendToHook(message) {
   const template = getNewTemplate(message)
-  await axios.post(`https://api.blinger.ru/telegram_bot_webhook?user_id=${message.from.id}`, template)
+  await axios.post('https://api.blinger.ru/telegram_bot_webhook?user_id=1368062', template)
     .then(e => console.log(e))
     .catch(e => console.log(e))
 }
 
 function getNewTemplate(message) {
-  return Object.assign(telegramTemplate, message)
+  const t = Object.assign({}, telegramTemplate)
+  t.message = message
+  return t
 }
 
 function isUserInOperatorMode(userId) {
