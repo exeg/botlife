@@ -41,18 +41,36 @@ bot.setGetStartedButton( async (payload, chat) => {
           text: `Задайте ваш вопрос после нажатия этой кнопки.`, 
           buttons: [ { type: 'postback', title: 'Связь с оператором', payload: 'BLINGER_HELP' } ]
     })
-    const newfUser = new Fuser({ fid: user.id, first_name: user.first_name, last_name: user.last_name, timezone: user.timezone });
+    const newfUser = new Fuser({ fid: user.id, first_name: user.first_name, last_name: user.last_name, timezone: user.timezone, botsys: "facebook" });
     await newfUser.save();
   });
 });
 
 
 bot.on('message', async (payload, chat) => {
-  if (payload.message.quick_reply) {
-    if (payload.message.text === "Да");
-    if (payload.message.text === "Нет");
-    if (payload.message.text === "В Начало") {
-      let buttons = await mainMenu();
+  const userId = payload.sender.id;
+  if (payload.message.quick_reply) {    
+    const user = await Fuser.findOne({ fid: userId });
+    if (payload.message.text === "Да") {
+      // console.log("___----____");
+      // console.log("----____----");
+      let res = {
+        article: payload.message.quick_reply.payload,
+        result: 1 
+      }
+      user.votes.push(res);
+      user.save();
+    } 
+    if (payload.message.text === "Нет") { 
+      let res = {
+        article: payload.message.quick_reply.payload,
+        result: 0 
+      }
+      user.votes.push(res);
+      user.save();
+    }
+    // if (payload.message.text === "В Начало");
+    let buttons = await mainMenu();
       chat.say({
         text: `Задайте вопрос оператору или воспользуйтесь меню самообслуживания!.`,
         buttons: buttons 
@@ -61,10 +79,9 @@ bot.on('message', async (payload, chat) => {
         text: `Задайте ваш вопрос после нажатия этой кнопки.`, 
         buttons: [ { type: 'postback', title: 'Связь с оператором', payload: 'BLINGER_HELP' } ]
       })
-    }
+  
     // console.log(payload.message.quick_reply.payload); 
   }
-  const userId = payload.sender.id;
   let operatorMode = isUserInOperatorMode(userId);
   if (operatorMode) {
     operatorMessageTemplate.entry[0].messaging[0].sender.id = userId;
@@ -90,6 +107,8 @@ bot.on('postback', async (payload, chat) => {
   const userId = payload.sender.id;
   if (payload.postback.payload === 'BLINGER_HELP') {
     const user = await Fuser.findOne({ fid: userId });
+    user.askHelp++;
+    user.save();
     operatorModeActive.push(user);
     bot.say(userId, "Добрый день, Какой у вас вопрос?");
     return;
@@ -166,7 +185,7 @@ exports.processFacebook = async (req, res) => {
     // for (let i in ress) {
     //   console.log(ress[i]);
     //   console.log(ress[i].messaging);
-    }
+    // }
   bot.handleFacebookData(data);
   // Must send back a 200 within 20 seconds or the request will time out.
   res.sendStatus(200);

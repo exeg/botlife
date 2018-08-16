@@ -32,7 +32,7 @@ bot.onSubscribe(async (response) => {
   let message = new TextMessage(`Здравствуйте, ${response.userProfile.name}. Приветствуем Вас в центре поддержки пользователей ivi.ru!\nЗадайте вопрос оператору или воспользуйтесь меню самообслуживания!`);
   let tmp = await keyboard(1);
   response.send([message,new KeyboardMessage(tmp)]);
-  let newfUser = new Fuser({ fid: response.userProfile.id, first_name: response.userProfile.name });
+  let newfUser = new Fuser({ fid: response.userProfile.id, first_name: response.userProfile.name, botsys: "viber" });
   await newfUser.save();
 });
 

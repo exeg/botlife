@@ -75,7 +75,9 @@ async function createUser(data) {
     fid: data.from.id, 
     first_name: data.from.first_name, 
     last_name: data.from.last_name, 
-    timezone: data.date });
+    timezone: data.date,
+    botsys: "telegram" 
+  });
   await user.save();
 }
 

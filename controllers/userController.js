@@ -6,21 +6,55 @@ const User = require('../models/User');
 
 
 
-exports.editItem = async (req, res) => {
-   const item = await Item.findOneAndUpdate({ _id: req.params.id }, req.body, {
-    new: true
-   }).exec();
-   if (item) {
-     res.status(200).json({
-     item: item,
-     status: 'Update successful!',
-     });
-   } else {
-     throw err;
-   }
 
+exports.getStats = async (req, res) => {
+  const users = await Fuser.find();
+
+  let result = {};
+  result.faceBookUsers = users.filter((e) => e.botsys === 'facebook').length;
+  result.viberUsers = users.filter((e) => e.botsys === 'viber').length;
+  result.telegramUsers = users.filter((e) => e.botsys === 'telegram').length;
+  result.allCount = result.faceBookUsers + result.viberUsers + result.telegramUsers; 
+
+  result.askForHelp = users.filter((e) => e.askHelp > 0 ).length;
+  let votes = [];
+  for (usr of users) {
+    if (usr.votes.length > 0) {
+      let vt = usr.votes.map(d => d.toObject());
+      votes = votes.concat(vt);
+    } 
+  }
+
+  let grouped = Array.from(
+    votes.reduce((m, { article, result }) => m.set(article, (m.get(article) || 0) + result), new Map)
+    .entries(), ([article, result]) => ({ article, result }) );
+
+  grouped = await Promise.all(grouped.map(async d => {
+    let tmp = await Item.findOne({ _id: d.article });
+    d.text = tmp.text;
+    return d;
+    }));
+   console.log(grouped);
+   result.articles = grouped;
+
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(result, null, 3));
 }
 
+exports.editItem = async (req, res) => {
+  const item = await Item.findOneAndUpdate({ _id: req.params.id }, req.body, {
+    new: true
+   }).exec();
+  if (item) {
+    res.status(200).json({
+      item: item,
+      status: 'Update successful!',
+    });
+  } else {
+    throw err;
+  }
+
+}
 
 exports.getItems = async (req, res) => {
   let items = await Item.find();
@@ -50,7 +84,6 @@ exports.getItems = async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify(result.lines, null, 3));
 }
-
 
 exports.regDefault = async (req, res) => {
   const user = new User({email: 'test@mail.com', name: 'test'});

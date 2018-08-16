@@ -17,6 +17,8 @@ router.use('/viber/webhook', textParser, viberController.vbot.middleware());
 
 router.get('/items', jsonParser, userController.getItems);
 
+router.get('/stats', jsonParser, userController.getStats);
+
 router.put('/item/:id', jsonParser, userController.isLoggedIn, userController.editItem);
 
 router.get('/regtest', jsonParser, userController.regDefault);
