@@ -1,20 +1,16 @@
 const Telegraf = require('telegraf');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
+const axios = require('axios');
 
 const configFile = require('../config');
 
 const Fuser = require('../models/Fclient');
 const Item = require('../models/Item');
-
+const telegramTemplate = require('../templates/telegramTemplate').telegramTemplate
 
 const TOKEN = configFile.TELEGRAM_TOKEN;
 const bot = new Telegraf(TOKEN)
-
-
-bot.catch((err) => {
-  console.log('Ooops', err)
-})
 
 const operatorModeActive = [];
 const connectToOperator = 'Связаться с оператором';
@@ -40,8 +36,9 @@ bot.on('text', async ({ reply, message }) => {
   if (!isUserInOperatorMode(message.from.id) && message.text === connectToOperator) {
     const user = await Fuser.findOne({ fid: message.from.id });
     operatorModeActive.push(user);
-    reply('Добрый день, Какой у вас вопрос?');
-    return;
+      reply('Добрый день, Какой у вас вопрос?');
+  } else if (isUserInOperatorMode(message.from.id)) {
+    await sendToHook(message)
   }
   if (!isUserInOperatorMode(message.from.id)) {
     const data = await getMenuByParentText(message.text);
@@ -54,8 +51,20 @@ bot.on('text', async ({ reply, message }) => {
       reply('Ничего по вашему запросу не найдено :(', await keyboard(1));
     }
   }
-
 });
+
+async function sendToHook(message) {
+  const template = getNewTemplate(message)
+  await axios.post('https://api.blinger.ru/telegram_bot_webhook?user_id=1368062', template)
+    .then(e => console.log(e))
+    .catch(e => console.log(e))
+}
+
+function getNewTemplate(message) {
+  const t = Object.assign({}, telegramTemplate)
+  t.message = message
+  return t
+}
 
 function isUserInOperatorMode(userId) {
   return operatorModeActive.find(u => Number(u.fid) === userId)
