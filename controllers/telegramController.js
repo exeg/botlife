@@ -19,7 +19,7 @@ bot.catch((err) => {
 const operatorModeActive = [];
 const connectToOperator = 'Связаться с оператором';
 
-// bot.use(Telegraf.log());
+bot.use(Telegraf.log());
 
 
 bot.start( async ({ reply, from, message }) => {

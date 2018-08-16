@@ -70,6 +70,17 @@ bot.on('message', async (payload, chat) => {
     operatorMessageTemplate.entry[0].messaging[0].sender.id = userId;
     operatorMessageTemplate.entry[0].messaging[0].message.text = payload.message.text;
     axios.post('https://api.blinger.ru/facebook_webhook', operatorMessageTemplate)
+  } else {
+    let buttons = await mainMenu();
+      chat.say({
+        text: `Задайте вопрос оператору или воспользуйтесь меню самообслуживания!.`,
+        buttons: buttons 
+      });
+      chat.say({
+        text: `Задайте ваш вопрос после нажатия этой кнопки.`, 
+        buttons: [ { type: 'postback', title: 'Связь с оператором', payload: 'BLINGER_HELP' } ]
+      })
+
   }
   // const text = payload.message.text;
   // chat.say(`Echo: ${text}`);
