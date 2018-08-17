@@ -7,14 +7,15 @@ const setTimeoutPromise = util.promisify(setTimeout);
 const Fuser = require('../models/Fclient');
 const Item = require('../models/Item');
 const operatorMessageTemplate = require('../templates/facebookTemplate').facebookTemplate();
-
+const configFile = require('../config');
+const CronJob = require('cron').CronJob;
 const operatorModeActive = [];
-
+run();
 
 const bot = new BootBot({
-  accessToken:'EAADfSiFZCkfMBAIf566aVUQuNMbQa83cJgSF3niurOmu7va3g2Y7Itgi3ZBRsMEzO5FJ3JB54VCAaSYYwjnSS45B638LOMioTlGICFMuZC72WmreoJotJc02QUQcSRsj8tbzvwEshBQL83YDH17AOhG1H4ZBx8KZC2ssk3gxMGQZDZD',
-  verifyToken: 'persistent battle',
-  appSecret: '77bebd9f917100949057155d8e95a24d'
+  accessToken: configFile.cfg.accessToken,
+  verifyToken: configFile.cfg.verifyToken,
+  appSecret: configFile.cfg.appSecret,
 });
 
 async function mainMenu () {
@@ -128,7 +129,7 @@ bot.on('postback', async (payload, chat) => {
     }
     if (answers[0].type === 'text') {
       bot.say(userId, answers[0].text);
-      setTimeoutPromise(40).then(() => {
+      setTimeoutPromise(60).then(() => {
         let message = {};
         message.text = "Была ли статья полезна?";
         message.quickReplies = [ {
@@ -160,6 +161,16 @@ function isUserInOperatorMode(userId) {
   return operatorModeActive.find(u => u.fid === userId);
 }
 
+function run() {
+  const job = new CronJob({
+    cronTime: '* * 20 * *',
+    onTick: async function () {
+      operatorModeActive = [];     
+    },
+    start: true,
+    timeZone: "Atlantic/Azores"
+  });
+}
 
 // exports.testFacebook = async (req, res) => {
 //   const newItem = { type:"button", master: null, level: 1,"text":"Связаться с оператором" };

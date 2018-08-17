@@ -34,7 +34,7 @@ exports.getStats = async (req, res) => {
     d.text = tmp.text;
     return d;
     }));
-   console.log(grouped);
+   // console.log(grouped);
    result.articles = grouped;
 
   res.setHeader('Content-Type', 'application/json');
@@ -125,7 +125,7 @@ exports.logout = (req, res) => {
   res.status(200).json({
     status: 'Bye!'
   });
-};
+}
 
 exports.isLoggedIn = (req, res, next) => {
   // first check if the user is authenticated
@@ -135,4 +135,4 @@ exports.isLoggedIn = (req, res, next) => {
   }
   // req.flash('error', 'Oops you must be logged in to do that!');
   res.redirect('/login');
-};
+}

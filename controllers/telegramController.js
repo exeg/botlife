@@ -2,18 +2,19 @@ const Telegraf = require('telegraf');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
 const axios = require('axios');
-
+const CronJob = require('cron').CronJob;
 const configFile = require('../config');
 
 const Fuser = require('../models/Fclient');
 const Item = require('../models/Item');
 const telegramTemplate = require('../templates/telegramTemplate').telegramTemplate
 
-const TOKEN = configFile.TELEGRAM_TOKEN;
+const TOKEN = configFile.cfg.TELEGRAM_TOKEN;
 const bot = new Telegraf(TOKEN)
 
 const operatorModeActive = [];
 const connectToOperator = 'Связаться с оператором';
+run();
 
 bot.use(Telegraf.log());
 
@@ -128,6 +129,17 @@ function defaultKeyboard() {
       Markup.callbackButton('В начало', 'start'),
     ])
     .extra();
+}
+
+function run() {
+  const job = new CronJob({
+    cronTime: '* * 20 * *',
+    onTick: async function () {
+      operatorModeActive = [];     
+    },
+    start: true,
+    timeZone: "Atlantic/Azores"
+  });
 }
 
 bot.startPolling();
