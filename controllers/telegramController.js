@@ -30,8 +30,9 @@ inlineKeyboardResponse.map((msg) => {
     editMessageReplyMarkup();
     if (msg !== 'start') {
       const result = msg === 'yes' ? 1 : 0;
+      const article = await Item.findOne({ text: message.text })
       const res = {
-        article: message.text,
+        article: article._id,
         result,
       };
       const user = await Fuser.findOne({ fid: message.from.id });
