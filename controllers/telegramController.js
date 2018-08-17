@@ -26,8 +26,18 @@ bot.start( async ({ reply, from, message }) => {
 
 const inlineKeyboardResponse = ['yes', 'no', 'start'];
 inlineKeyboardResponse.map((msg) => {
-  bot.action(msg, async ({ reply, editMessageReplyMarkup }) => {
+  bot.action(msg, async ({ reply, message, editMessageReplyMarkup }) => {
     editMessageReplyMarkup();
+    if (msg !== 'start') {
+      const result = msg === 'yes' ? 1 : 0;
+      const res = {
+        article: message.text,
+        result,
+      };
+      const user = await Fuser.findOne({ fid: message.from.id });
+      user.votes.push(res);
+      user.save();
+    }
     reply('Спасибо за отзыв!', await keyboard(1));
   });
 });
@@ -35,6 +45,8 @@ inlineKeyboardResponse.map((msg) => {
 bot.on('text', async ({ reply, message }) => {
   if (!isUserInOperatorMode(message.from.id) && message.text === connectToOperator) {
     const user = await Fuser.findOne({ fid: message.from.id });
+    user.askHelp = user.askHelp + 1;
+    user.save();
     operatorModeActive.push(user);
       reply('Добрый день, Какой у вас вопрос?');
   } else if (isUserInOperatorMode(message.from.id)) {
